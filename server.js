@@ -15,6 +15,16 @@ try {
 
 const PORT = process.env.PORT || config.port || 3000;
 
+// --- Environment variable overrides (for Railway/Docker) ---
+if (process.env.DISCORD_TOKEN) {
+    config.discord = config.discord || {};
+    config.discord.token = process.env.DISCORD_TOKEN;
+}
+if (process.env.DISCORD_GUILD_ID) {
+    config.discord = config.discord || {};
+    config.discord.guildId = process.env.DISCORD_GUILD_ID;
+}
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
