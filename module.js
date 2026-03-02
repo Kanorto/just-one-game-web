@@ -60,6 +60,8 @@ function init(wsServer, path) {
                     wordGuessed: null,
                     wordAccepted: null,
                     managedVoice: true,
+                    discordMute: false,
+                    discordLinks: {},
                     masterKicked: false,
                     noHints: false,
                 },
@@ -82,12 +84,16 @@ function init(wsServer, path) {
                 },
                 processUserVoice = () => {
                     room.userVoice = {};
+                    room.userDeaf = {};
                     room.onlinePlayers.forEach((user) => {
                         if (!room.managedVoice || !room.teamsLocked || room.phase === 0)
                             room.userVoice[user] = true;
                         else if (room.players)
                             room.userVoice[user] = true;
                     });
+                    if (room.discordMute && room.master && room.phase >= 1 && room.phase <= 3) {
+                        room.userDeaf[room.master] = true;
+                    }
                 },
                 updatePlayerState = () => {
                     [...room.onlinePlayers].forEach(playerId => {
@@ -489,6 +495,35 @@ function init(wsServer, path) {
                             clearInterval(interval);
                         }
                     }
+                    update();
+                },
+                "toggle-discord-mute": (user) => {
+                    if (user === room.hostId) {
+                        room.discordMute = !room.discordMute;
+                        update();
+                    }
+                },
+                "link-discord": (user, code) => {
+                    if (!code || typeof code !== 'string') return;
+                    code = code.trim().toUpperCase();
+                    const linkData = registry.linkCodes && registry.linkCodes.get(code);
+                    if (linkData) {
+                        room.discordLinks[user] = linkData.discordUserId;
+                        registry.linkCodes.delete(code);
+                        send(user, "discord-linked", {
+                            success: true,
+                            discordUsername: linkData.discordUsername
+                        });
+                        room.voiceEnabled = true;
+                        update();
+                    } else {
+                        send(user, "discord-linked", {
+                            success: false
+                        });
+                    }
+                },
+                "unlink-discord": (user) => {
+                    delete room.discordLinks[user];
                     update();
                 },
                 "set-param": (user, type, value) => {

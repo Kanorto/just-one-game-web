@@ -1,13 +1,29 @@
 {
-  "name": "codenames",
-  "version": "0.0.0",
-  "main": "module.js",
+  "name": "just-one-game-web",
+  "version": "1.0.0",
+  "main": "server.js",
   "private": true,
   "files": [
     "module.js",
+    "server.js",
+    "discord-bot.js",
+    "moderated-words.json",
     "public"
   ],
+  "scripts": {
+    "start": "node server.js",
+    "debug": "node server.js debug"
+  },
   "dependencies": {
-    "randomcolor": "0.5.3"
+    "@babel/standalone": "^7.29.1",
+    "express": "^4.18.2",
+    "material-icons": "^1.13.14",
+    "randomcolor": "0.5.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "socket.io": "^4.7.4"
+  },
+  "optionalDependencies": {
+    "discord.js": "^14.14.1"
   }
 }

@@ -21,6 +21,13 @@ window.t = (eng) => {
         'reveal time': 'Время на лайк',
         'words level': 'Уровень слов',
         'goal': 'Очки для победы',
+        'discord mute': 'Изолированный режим (Discord)',
+        'link discord': 'Привязать Discord (введите код от бота)',
+        'unlink discord': 'Отвязать Discord',
+        'enter discord code': 'Введите код от Discord бота (команда !link)',
+        'unlink discord confirm': 'Отвязать Discord аккаунт?',
+        'discord linked': 'Discord привязан',
+        'discord link failed': 'Неверный или просроченный код',
         'empty': 'Пусто'
     };
     if (translations.hasOwnProperty(eng)) {
