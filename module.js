@@ -15,6 +15,10 @@ function init(wsServer, path) {
 
     const defaultWords = JSON.parse(fs.readFileSync(`${registry.config.appDir}/moderated-words.json`));
 
+    // Ensure custom word packs directory exists
+    const customDir = `${registry.config.appDir}/custom`;
+    fs.mkdir(customDir, { recursive: true }, () => {});
+
     class GameState extends wsServer.users.RoomState {
         constructor(hostId, hostData, userRegistry) {
             super(hostId, hostData, userRegistry, registry.games.justOne.id, path);
@@ -575,6 +579,33 @@ function init(wsServer, path) {
                         updatePlayerState();
                     }
                 },
+                "words-pack-list": (user) => {
+                    fs.readdir(`${appDir}/custom`, "utf8", function (err, files) {
+                        if (err)
+                            send(user, "message", "Не удалось загрузить список паков");
+                        else if (files)
+                            send(user, "words-pack-list", files
+                                .filter((name) => name.endsWith(".json"))
+                                .map((name) => name.replace(".json", "")));
+                    });
+                },
+                "view-words-pack": (user, packName) => {
+                    if (packName && typeof packName === 'string'
+                        && !~packName.indexOf("..") && !~packName.indexOf("/") && !~packName.indexOf("\\") && !~packName.indexOf("\0")) {
+                        fs.readFile(`${appDir}/custom/${packName}.json`, "utf8", function (err, str) {
+                            if (err)
+                                send(user, "message", "Не удалось загрузить пак");
+                            else if (str) {
+                                const data = JSON.parse(str);
+                                send(user, "words-pack", {
+                                    wordList: data.wordList,
+                                    author: data.author,
+                                    packName
+                                });
+                            }
+                        });
+                    }
+                },
                 "setup-words": (user, packName, words) => {
                     if (checkCanSetCustom() && room.hostId === user && words.length <= 1500) {
                         if (words) {
@@ -586,17 +617,19 @@ function init(wsServer, path) {
                     }
                 },
                 "setup-words-preset": (user, packName) => {
-                    if (checkCanSetCustom() && room.hostId === user) {
+                    if (checkCanSetCustom() && room.hostId === user
+                        && packName && typeof packName === 'string'
+                        && !~packName.indexOf("..") && !~packName.indexOf("/") && !~packName.indexOf("\\") && !~packName.indexOf("\0")) {
                         fs.readFile(`${appDir}/custom/${packName}.json`, "utf8", (err, str) => {
-                            if (str) {
+                            if (err)
+                                send(user, "message", "Не удалось загрузить пак");
+                            else if (str) {
                                 const data = JSON.parse(str);
                                 state.words = [];
                                 this.state.roomWordsList = shuffleArray(data.wordList);
                                 room.packName = packName;
                                 update();
                             }
-                            if (err)
-                                send(user, "message", JSON.stringify(err));
                         });
                     }
                 },
