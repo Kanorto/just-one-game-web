@@ -60,6 +60,7 @@ function init(wsServer, path) {
                     wordGuessed: null,
                     wordAccepted: null,
                     managedVoice: true,
+                    discordMute: false,
                     masterKicked: false,
                     noHints: false,
                 },
@@ -82,12 +83,16 @@ function init(wsServer, path) {
                 },
                 processUserVoice = () => {
                     room.userVoice = {};
+                    room.userDeaf = {};
                     room.onlinePlayers.forEach((user) => {
                         if (!room.managedVoice || !room.teamsLocked || room.phase === 0)
                             room.userVoice[user] = true;
                         else if (room.players)
                             room.userVoice[user] = true;
                     });
+                    if (room.discordMute && room.master && room.phase >= 1 && room.phase <= 3) {
+                        room.userDeaf[room.master] = true;
+                    }
                 },
                 updatePlayerState = () => {
                     [...room.onlinePlayers].forEach(playerId => {
@@ -490,6 +495,12 @@ function init(wsServer, path) {
                         }
                     }
                     update();
+                },
+                "toggle-discord-mute": (user) => {
+                    if (user === room.hostId) {
+                        room.discordMute = !room.discordMute;
+                        update();
+                    }
                 },
                 "set-param": (user, type, value) => {
                     if (user === room.hostId && ~[

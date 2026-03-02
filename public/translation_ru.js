@@ -21,6 +21,7 @@ window.t = (eng) => {
         'reveal time': 'Время на лайк',
         'words level': 'Уровень слов',
         'goal': 'Очки для победы',
+        'discord mute': 'Изолированный режим (Discord)',
         'empty': 'Пусто'
     };
     if (translations.hasOwnProperty(eng)) {

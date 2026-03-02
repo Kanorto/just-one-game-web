@@ -52,6 +52,10 @@ class HostControls extends React.Component {
         this.props.socket.emit("toggle-timed");
     }
 
+    toggleDiscordMute() {
+        this.props.socket.emit("toggle-discord-mute");
+    }
+
     setRoomMode() {
         this.props.socket.emit("set-room-mode", false);
     }
@@ -179,6 +183,13 @@ class HostControls extends React.Component {
                               className="material-icons start-game settings-button">alarm_off</i>)
                         : (<i onClick={() => this.toggleTimed()}
                               className="material-icons start-game settings-button">alarm</i>)) : ""}
+                    {(isHost && data.paused) ? (!data.discordMute
+                        ? (<i onClick={() => this.toggleDiscordMute()}
+                              title={t("discord mute")}
+                              className="material-icons start-game settings-button">headset_off</i>)
+                        : (<i onClick={() => this.toggleDiscordMute()}
+                              title={t("discord mute")}
+                              className="material-icons start-game settings-button">headset</i>)) : ""}
                     {(isHost && data.paused)
                         ? (<i onClick={() => this.clickRestart()}
                               className="toggle-theme material-icons settings-button">sync</i>) : ""}
