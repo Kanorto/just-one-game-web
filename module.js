@@ -15,6 +15,10 @@ function init(wsServer, path) {
 
     const defaultWords = JSON.parse(fs.readFileSync(`${registry.config.appDir}/moderated-words.json`));
 
+    // Ensure custom word packs directory exists
+    const customDir = `${registry.config.appDir}/custom`;
+    fs.mkdir(customDir, { recursive: true }, () => {});
+
     class GameState extends wsServer.users.RoomState {
         constructor(hostId, hostData, userRegistry) {
             super(hostId, hostData, userRegistry, registry.games.justOne.id, path);
@@ -573,6 +577,32 @@ function init(wsServer, path) {
                         room.spectators.add(user);
                         update();
                         updatePlayerState();
+                    }
+                },
+                "words-pack-list": (user) => {
+                    fs.readdir(`${appDir}/custom`, "utf8", function (err, files) {
+                        if (files)
+                            send(user, "words-pack-list", files
+                                .filter((name) => name.endsWith(".json"))
+                                .map((name) => name.replace(".json", "")));
+                        if (err)
+                            send(user, "message", err);
+                    });
+                },
+                "view-words-pack": (user, packName) => {
+                    if (packName && typeof packName === 'string' && !~packName.indexOf("..")) {
+                        fs.readFile(`${appDir}/custom/${packName}.json`, "utf8", function (err, str) {
+                            if (str) {
+                                const data = JSON.parse(str);
+                                send(user, "words-pack", {
+                                    wordList: data.wordList,
+                                    author: data.author,
+                                    packName
+                                });
+                            }
+                            if (err)
+                                send(user, "message", JSON.stringify(err));
+                        });
                     }
                 },
                 "setup-words": (user, packName, words) => {
