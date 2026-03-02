@@ -50,6 +50,7 @@ app.get('/vendor/react-dom.js', (req, res) => {
 app.get('/vendor/babel.min.js', (req, res) => {
     res.sendFile(path.join(vendorDir, '@babel/standalone/babel.min.js'));
 });
+app.use('/vendor/material-icons', express.static(path.join(vendorDir, 'material-icons/iconfont')));
 
 // --- Shared state for Discord linking ---
 const linkCodes = new Map(); // code -> { discordUserId, discordUsername, timestamp }
