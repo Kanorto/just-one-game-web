@@ -964,3 +964,11 @@ input#command-input {
 .text-color, a {
     color: #cccaca;
 }
+
+.discord-link-btn {
+    color: #7289da;
+}
+
+.discord-linked-btn {
+    color: #43b581;
+}

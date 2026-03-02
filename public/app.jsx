@@ -98,6 +98,13 @@ class Game extends React.Component {
         this.socket.on("subscribe-needed", () => {
             window.commonRoom.subscribeOrKonfaPopup('Пользовательские паки доступны ')
         });
+        this.socket.on("discord-linked", (result) => {
+            if (result.success) {
+                popup.alert({content: t("discord linked") + ": " + result.discordUsername});
+            } else {
+                popup.alert({content: t("discord link failed")});
+            }
+        });
         this.socket.on("ping", (id) => {
             this.socket.emit("pong", id);
         });

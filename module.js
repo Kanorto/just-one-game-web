@@ -61,6 +61,7 @@ function init(wsServer, path) {
                     wordAccepted: null,
                     managedVoice: true,
                     discordMute: false,
+                    discordLinks: {},
                     masterKicked: false,
                     noHints: false,
                 },
@@ -501,6 +502,29 @@ function init(wsServer, path) {
                         room.discordMute = !room.discordMute;
                         update();
                     }
+                },
+                "link-discord": (user, code) => {
+                    if (!code || typeof code !== 'string') return;
+                    code = code.trim().toUpperCase();
+                    const linkData = registry.linkCodes && registry.linkCodes.get(code);
+                    if (linkData) {
+                        room.discordLinks[user] = linkData.discordUserId;
+                        registry.linkCodes.delete(code);
+                        send(user, "discord-linked", {
+                            success: true,
+                            discordUsername: linkData.discordUsername
+                        });
+                        room.voiceEnabled = true;
+                        update();
+                    } else {
+                        send(user, "discord-linked", {
+                            success: false
+                        });
+                    }
+                },
+                "unlink-discord": (user) => {
+                    delete room.discordLinks[user];
+                    update();
                 },
                 "set-param": (user, type, value) => {
                     if (user === room.hostId && ~[

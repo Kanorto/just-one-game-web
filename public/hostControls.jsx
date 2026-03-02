@@ -56,6 +56,24 @@ class HostControls extends React.Component {
         this.props.socket.emit("toggle-discord-mute");
     }
 
+    clickLinkDiscord() {
+        const {socket} = this.props;
+        popup.prompt({content: t("enter discord code"), value: ""}, (evt) => {
+            if (evt.proceed && evt.input_value.trim()) {
+                socket.emit("link-discord", evt.input_value.trim());
+            }
+        });
+    }
+
+    clickUnlinkDiscord() {
+        const {socket} = this.props;
+        popup.confirm({content: t("unlink discord confirm")}, (evt) => {
+            if (evt.proceed) {
+                socket.emit("unlink-discord");
+            }
+        });
+    }
+
     setRoomMode() {
         this.props.socket.emit("set-room-mode", false);
     }
@@ -193,6 +211,13 @@ class HostControls extends React.Component {
                     {(isHost && data.paused)
                         ? (<i onClick={() => this.clickRestart()}
                               className="toggle-theme material-icons settings-button">sync</i>) : ""}
+                    {!(data.discordLinks && data.discordLinks[data.userId])
+                        ? (<i onClick={() => this.clickLinkDiscord()}
+                              title={t("link discord")}
+                              className="material-icons settings-button discord-link-btn">link</i>)
+                        : (<i onClick={() => this.clickUnlinkDiscord()}
+                              title={t("unlink discord")}
+                              className="material-icons settings-button discord-linked-btn">link</i>)}
                     <i onClick={() => this.clickChangeName()}
                        className="toggle-theme material-icons settings-button">edit</i>
                     {!parseInt(localStorage.muteSounds)
