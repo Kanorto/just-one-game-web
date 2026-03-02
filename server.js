@@ -16,13 +16,10 @@ try {
 const PORT = process.env.PORT || config.port || 3000;
 
 // --- Environment variable overrides (for Railway/Docker) ---
-if (process.env.DISCORD_TOKEN) {
+if (process.env.DISCORD_TOKEN || process.env.DISCORD_GUILD_ID) {
     config.discord = config.discord || {};
-    config.discord.token = process.env.DISCORD_TOKEN;
-}
-if (process.env.DISCORD_GUILD_ID) {
-    config.discord = config.discord || {};
-    config.discord.guildId = process.env.DISCORD_GUILD_ID;
+    if (process.env.DISCORD_TOKEN) config.discord.token = process.env.DISCORD_TOKEN;
+    if (process.env.DISCORD_GUILD_ID) config.discord.guildId = process.env.DISCORD_GUILD_ID;
 }
 
 const app = express();
