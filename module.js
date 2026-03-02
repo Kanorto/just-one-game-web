@@ -581,18 +581,21 @@ function init(wsServer, path) {
                 },
                 "words-pack-list": (user) => {
                     fs.readdir(`${appDir}/custom`, "utf8", function (err, files) {
-                        if (files)
+                        if (err)
+                            send(user, "message", "Не удалось загрузить список паков");
+                        else if (files)
                             send(user, "words-pack-list", files
                                 .filter((name) => name.endsWith(".json"))
                                 .map((name) => name.replace(".json", "")));
-                        if (err)
-                            send(user, "message", err);
                     });
                 },
                 "view-words-pack": (user, packName) => {
-                    if (packName && typeof packName === 'string' && !~packName.indexOf("..")) {
+                    if (packName && typeof packName === 'string'
+                        && !~packName.indexOf("..") && !~packName.indexOf("/") && !~packName.indexOf("\\") && !~packName.indexOf("\0")) {
                         fs.readFile(`${appDir}/custom/${packName}.json`, "utf8", function (err, str) {
-                            if (str) {
+                            if (err)
+                                send(user, "message", "Не удалось загрузить пак");
+                            else if (str) {
                                 const data = JSON.parse(str);
                                 send(user, "words-pack", {
                                     wordList: data.wordList,
@@ -600,8 +603,6 @@ function init(wsServer, path) {
                                     packName
                                 });
                             }
-                            if (err)
-                                send(user, "message", JSON.stringify(err));
                         });
                     }
                 },
@@ -616,17 +617,19 @@ function init(wsServer, path) {
                     }
                 },
                 "setup-words-preset": (user, packName) => {
-                    if (checkCanSetCustom() && room.hostId === user) {
+                    if (checkCanSetCustom() && room.hostId === user
+                        && packName && typeof packName === 'string'
+                        && !~packName.indexOf("..") && !~packName.indexOf("/") && !~packName.indexOf("\\") && !~packName.indexOf("\0")) {
                         fs.readFile(`${appDir}/custom/${packName}.json`, "utf8", (err, str) => {
-                            if (str) {
+                            if (err)
+                                send(user, "message", "Не удалось загрузить пак");
+                            else if (str) {
                                 const data = JSON.parse(str);
                                 state.words = [];
                                 this.state.roomWordsList = shuffleArray(data.wordList);
                                 room.packName = packName;
                                 update();
                             }
-                            if (err)
-                                send(user, "message", JSON.stringify(err));
                         });
                     }
                 },
