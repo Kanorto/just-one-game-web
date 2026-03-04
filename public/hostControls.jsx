@@ -69,6 +69,7 @@ class HostControls extends React.Component {
         const {socket} = this.props;
         popup.confirm({content: t("unlink discord confirm")}, (evt) => {
             if (evt.proceed) {
+                delete localStorage.discordId;
                 socket.emit("unlink-discord");
             }
         });
