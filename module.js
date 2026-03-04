@@ -91,7 +91,10 @@ function init(wsServer, path) {
                         else if (room.players)
                             room.userVoice[user] = true;
                     });
-                    if (room.discordMute && room.master && room.phase >= 1 && room.phase <= 3) {
+                    if (room.discordMute && room.master && room.phase >= 1 && room.phase <= 3
+                        && !room.paused
+                        && room.onlinePlayers.has(room.master)
+                        && room.players.has(room.master)) {
                         room.userDeaf[room.master] = true;
                     }
                 },
