@@ -387,7 +387,7 @@ function init(wsServer, path) {
                 ...this.eventHandlers,
                 "change-name": (user, name) => {
                     if (name && typeof name === "string") {
-                        room.playerNames[user] = name.substr(0, 60);
+                        room.playerNames[user] = name.substring(0, 60);
                         update();
                     }
                 },

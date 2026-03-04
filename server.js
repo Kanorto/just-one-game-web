@@ -164,13 +164,31 @@ const registry = {
                     : (imageData instanceof ArrayBuffer || (imageData && imageData.byteLength !== undefined))
                         ? Buffer.from(imageData)
                         : null;
-                if (!buf || buf.length === 0 || buf.length > MAX_AVATAR_SIZE) return;
-                const avatarId = Date.now().toString(36);
+                if (!buf || buf.length === 0 || buf.length > MAX_AVATAR_SIZE) {
+                    socket.emit('message', 'Avatar upload failed: file too large or invalid');
+                    return;
+                }
+                // Validate image magic bytes (PNG, JPEG, GIF, WEBP)
+                const isImage = (buf[0] === 0x89 && buf[1] === 0x50) // PNG
+                    || (buf[0] === 0xFF && buf[1] === 0xD8) // JPEG
+                    || (buf[0] === 0x47 && buf[1] === 0x49) // GIF
+                    || (buf[0] === 0x52 && buf[1] === 0x49 && buf[8] === 0x57); // WEBP
+                if (!isImage) {
+                    socket.emit('message', 'Avatar upload failed: unsupported image format');
+                    return;
+                }
+                const avatarId = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
                 const avatarDir = path.join(__dirname, 'public', 'avatars', currentUserId);
                 fs.mkdir(avatarDir, { recursive: true }, (err) => {
-                    if (err) return;
+                    if (err) {
+                        socket.emit('message', 'Avatar upload failed');
+                        return;
+                    }
                     fs.writeFile(path.join(avatarDir, avatarId + '.png'), buf, (err) => {
-                        if (err) return;
+                        if (err) {
+                            socket.emit('message', 'Avatar upload failed');
+                            return;
+                        }
                         currentRoom.userEvent(currentUserId, 'update-avatar', [avatarId]);
                         socket.emit('avatar-uploaded', avatarId);
                     });
