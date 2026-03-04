@@ -155,8 +155,48 @@ const registry = {
                 currentRoom.userJoin(data);
             });
 
+            socket.on('upload-avatar', (imageData) => {
+                if (!currentUserId || !currentRoom || !imageData) return;
+                if (!/^[a-z0-9]+$/.test(currentUserId)) return;
+                const MAX_AVATAR_SIZE = 256 * 1024; // 256KB
+                const buf = Buffer.isBuffer(imageData)
+                    ? imageData
+                    : (imageData instanceof ArrayBuffer || (imageData && imageData.byteLength !== undefined))
+                        ? Buffer.from(imageData)
+                        : null;
+                if (!buf || buf.length === 0 || buf.length > MAX_AVATAR_SIZE) {
+                    socket.emit('message', 'Avatar upload failed: file too large or invalid');
+                    return;
+                }
+                // Validate image magic bytes (PNG, JPEG, GIF, WEBP)
+                const isImage = (buf[0] === 0x89 && buf[1] === 0x50) // PNG
+                    || (buf[0] === 0xFF && buf[1] === 0xD8) // JPEG
+                    || (buf[0] === 0x47 && buf[1] === 0x49) // GIF
+                    || (buf[0] === 0x52 && buf[1] === 0x49 && buf[8] === 0x57); // WEBP
+                if (!isImage) {
+                    socket.emit('message', 'Avatar upload failed: unsupported image format');
+                    return;
+                }
+                const avatarId = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+                const avatarDir = path.join(__dirname, 'public', 'avatars', currentUserId);
+                fs.mkdir(avatarDir, { recursive: true }, (err) => {
+                    if (err) {
+                        socket.emit('message', 'Avatar upload failed');
+                        return;
+                    }
+                    fs.writeFile(path.join(avatarDir, avatarId + '.png'), buf, (err) => {
+                        if (err) {
+                            socket.emit('message', 'Avatar upload failed');
+                            return;
+                        }
+                        currentRoom.userEvent(currentUserId, 'update-avatar', [avatarId]);
+                        socket.emit('avatar-uploaded', avatarId);
+                    });
+                });
+            });
+
             socket.onAny((event, ...args) => {
-                if (event === 'init') return;
+                if (event === 'init' || event === 'upload-avatar') return;
                 if (currentRoom && currentUserId) {
                     currentRoom.userEvent(currentUserId, event, args);
                 }

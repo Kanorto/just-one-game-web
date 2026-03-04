@@ -352,6 +352,10 @@ function init(wsServer, path) {
                             }
                         });
                     }
+                    if (data.discordId && typeof data.discordId === 'string' && !room.discordLinks[user]) {
+                        room.discordLinks[user] = data.discordId;
+                        room.voiceEnabled = true;
+                    }
                     update();
                     updatePlayerState();
                 },
@@ -385,6 +389,12 @@ function init(wsServer, path) {
             this.userEvent = userEvent;
             this.eventHandlers = {
                 ...this.eventHandlers,
+                "change-name": (user, name) => {
+                    if (name && typeof name === "string") {
+                        room.playerNames[user] = name.substring(0, 60);
+                        update();
+                    }
+                },
                 "update-avatar": (user, id) => {
                     room.playerAvatars[user] = id;
                     update()
@@ -512,7 +522,8 @@ function init(wsServer, path) {
                         registry.linkCodes.delete(code);
                         send(user, "discord-linked", {
                             success: true,
-                            discordUsername: linkData.discordUsername
+                            discordUsername: linkData.discordUsername,
+                            discordId: linkData.discordUserId
                         });
                         room.voiceEnabled = true;
                         update();

@@ -45,6 +45,7 @@ class Game extends React.Component {
             delete localStorage.acceptDelete;
         }
         initArgs.avatarId = localStorage.avatarId;
+        initArgs.discordId = localStorage.discordId;
         initArgs.roomId = this.roomId = location.hash.substr(1);
         initArgs.userId = this.userId = localStorage.justOneUserId;
         initArgs.token = this.userToken = localStorage.userToken;
@@ -100,6 +101,7 @@ class Game extends React.Component {
         });
         this.socket.on("discord-linked", (result) => {
             if (result.success) {
+                localStorage.discordId = result.discordId;
                 popup.alert({content: t("discord linked") + ": " + result.discordUsername});
             } else {
                 popup.alert({content: t("discord link failed")});
@@ -107,6 +109,9 @@ class Game extends React.Component {
         });
         this.socket.on("ping", (id) => {
             this.socket.emit("pong", id);
+        });
+        this.socket.on("avatar-uploaded", (avatarId) => {
+            localStorage.avatarId = avatarId;
         });
         document.title = `Just one - ${initArgs.roomId}`;
         this.socket.emit("init", initArgs);
