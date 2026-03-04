@@ -155,8 +155,30 @@ const registry = {
                 currentRoom.userJoin(data);
             });
 
+            socket.on('upload-avatar', (imageData) => {
+                if (!currentUserId || !currentRoom || !imageData) return;
+                if (!/^[a-z0-9]+$/.test(currentUserId)) return;
+                const MAX_AVATAR_SIZE = 256 * 1024; // 256KB
+                const buf = Buffer.isBuffer(imageData)
+                    ? imageData
+                    : (imageData instanceof ArrayBuffer || (imageData && imageData.byteLength !== undefined))
+                        ? Buffer.from(imageData)
+                        : null;
+                if (!buf || buf.length === 0 || buf.length > MAX_AVATAR_SIZE) return;
+                const avatarId = Date.now().toString(36);
+                const avatarDir = path.join(__dirname, 'public', 'avatars', currentUserId);
+                fs.mkdir(avatarDir, { recursive: true }, (err) => {
+                    if (err) return;
+                    fs.writeFile(path.join(avatarDir, avatarId + '.png'), buf, (err) => {
+                        if (err) return;
+                        currentRoom.userEvent(currentUserId, 'update-avatar', [avatarId]);
+                        socket.emit('avatar-uploaded', avatarId);
+                    });
+                });
+            });
+
             socket.onAny((event, ...args) => {
-                if (event === 'init') return;
+                if (event === 'init' || event === 'upload-avatar') return;
                 if (currentRoom && currentUserId) {
                     currentRoom.userEvent(currentUserId, event, args);
                 }

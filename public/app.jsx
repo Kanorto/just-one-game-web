@@ -108,6 +108,9 @@ class Game extends React.Component {
         this.socket.on("ping", (id) => {
             this.socket.emit("pong", id);
         });
+        this.socket.on("avatar-uploaded", (avatarId) => {
+            localStorage.avatarId = avatarId;
+        });
         document.title = `Just one - ${initArgs.roomId}`;
         this.socket.emit("init", initArgs);
         this.tapSound = new Audio("/just-one/tap.mp3");

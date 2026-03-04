@@ -63,7 +63,26 @@ window.commonRoom = {
         return null;
     },
     subscribeOrKonfaPopup: function () {},
-    handleClickSetImage: function () {}
+    handleClickSetImage: function (type) {
+        if (type !== 'avatar') return;
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/png,image/jpeg,image/gif,image/webp';
+        input.onchange = function () {
+            if (!input.files || !input.files[0]) return;
+            var file = input.files[0];
+            if (file.size > 256 * 1024) {
+                alert('Image too large. Max 256KB.');
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function () {
+                window.socket.emit('upload-avatar', reader.result);
+            };
+            reader.readAsArrayBuffer(file);
+        };
+        input.click();
+    }
 };
 
 window.CommonRoom = class CommonRoom extends React.Component {

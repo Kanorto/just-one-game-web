@@ -385,6 +385,12 @@ function init(wsServer, path) {
             this.userEvent = userEvent;
             this.eventHandlers = {
                 ...this.eventHandlers,
+                "change-name": (user, name) => {
+                    if (name && typeof name === "string") {
+                        room.playerNames[user] = name.substr(0, 60);
+                        update();
+                    }
+                },
                 "update-avatar": (user, id) => {
                     room.playerAvatars[user] = id;
                     update()
