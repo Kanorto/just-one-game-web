@@ -56,6 +56,23 @@ class HostControls extends React.Component {
         this.props.socket.emit("toggle-discord-mute");
     }
 
+    clickSetDiscordGuild() {
+        const {socket, data} = this.props;
+        if (data.discordGuildId) {
+            popup.confirm({content: t("unset discord guild confirm") + "\n" + t("current guild") + ": " + (data.discordGuildName || data.discordGuildId)}, (evt) => {
+                if (evt.proceed) {
+                    socket.emit("unset-discord-guild");
+                }
+            });
+        } else {
+            popup.prompt({content: t("enter discord guild id")}, (evt) => {
+                if (evt.proceed && evt.input_value.trim()) {
+                    socket.emit("set-discord-guild", evt.input_value.trim());
+                }
+            });
+        }
+    }
+
     clickLinkDiscord() {
         const {socket} = this.props;
         popup.prompt({content: t("enter discord code"), value: ""}, (evt) => {
@@ -209,6 +226,13 @@ class HostControls extends React.Component {
                         : (<i onClick={() => this.toggleDiscordMute()}
                               title={t("discord mute")}
                               className="material-icons start-game settings-button">headset</i>)) : ""}
+                    {isHost ? (!data.discordGuildId
+                        ? (<i onClick={() => this.clickSetDiscordGuild()}
+                              title={t("set discord guild")}
+                              className="material-icons settings-button discord-guild-btn">dns</i>)
+                        : (<i onClick={() => this.clickSetDiscordGuild()}
+                              title={t("discord guild connected") + ": " + (data.discordGuildName || data.discordGuildId)}
+                              className="material-icons settings-button discord-guild-linked-btn">dns</i>)) : ""}
                     {(isHost && data.paused)
                         ? (<i onClick={() => this.clickRestart()}
                               className="toggle-theme material-icons settings-button">sync</i>) : ""}

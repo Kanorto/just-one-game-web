@@ -16,10 +16,9 @@ try {
 const PORT = process.env.PORT || config.port || 3000;
 
 // --- Environment variable overrides (for Railway/Docker) ---
-if (process.env.DISCORD_TOKEN || process.env.DISCORD_GUILD_ID) {
+if (process.env.DISCORD_TOKEN) {
     config.discord = config.discord || {};
-    if (process.env.DISCORD_TOKEN) config.discord.token = process.env.DISCORD_TOKEN;
-    if (process.env.DISCORD_GUILD_ID) config.discord.guildId = process.env.DISCORD_GUILD_ID;
+    config.discord.token = process.env.DISCORD_TOKEN;
 }
 
 const app = express();
@@ -225,6 +224,8 @@ registry.users = registry;
 
 // Discord user lookup (set by discord-bot when active)
 registry.lookupDiscordUser = null;
+// Discord guild validation (set by discord-bot when active)
+registry.validateDiscordGuild = null;
 
 // --- wsServer interface ---
 const wsServer = {
@@ -263,9 +264,14 @@ if (config.discord && config.discord.token && config.discord.token !== 'YOUR_DIS
         discordBot.start().then(() => {
             console.log('[Discord] Bot started successfully');
             discordBotActive = true;
-            // Enable voice for existing rooms
+            // Expose bot validation and lookup functions via registry
+            registry.validateDiscordGuild = (guildId) => discordBot.validateGuild(guildId);
+            registry.lookupDiscordUser = (guildId, discordUserId) => discordBot.lookupDiscordUserInGuild(guildId, discordUserId);
+            // Enable voice for existing rooms that have a guild set
             rooms.forEach(room => {
-                room.room.voiceEnabled = true;
+                if (room.room.discordGuildId) {
+                    room.room.voiceEnabled = true;
+                }
             });
         }).catch(err => {
             console.error('[Discord] Failed to start bot:', err.message);

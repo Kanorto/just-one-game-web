@@ -33,6 +33,20 @@ window.t = (eng) => {
         'click to link discord': 'Нажмите, чтобы привязать Discord',
         'not linked to discord': 'Не привязан к Discord',
         'invalid discord id': 'Неверный формат Discord ID (нужен числовой ID из 17-20 цифр)',
+        'set discord guild': 'Указать Discord сервер',
+        'enter discord guild id': 'Введите ID вашего Discord сервера (числовой ID из 17-20 цифр)',
+        'unset discord guild confirm': 'Отвязать Discord сервер?',
+        'current guild': 'Текущий сервер',
+        'discord guild connected': 'Discord сервер подключён',
+        'discord guild set success': 'Discord сервер подключён',
+        'discord guild not found': 'Сервер не найден. Бот не добавлен на этот сервер.',
+        'discord insufficient permissions': 'У бота недостаточно прав на этом сервере.',
+        'add bot link': 'Добавьте бота или выдайте права по ссылке',
+        'discord bot not active': 'Discord бот не активен на сервере игры.',
+        'invalid discord guild id': 'Неверный формат ID сервера (нужен числовой ID из 17-20 цифр)',
+        'discord guild set failed': 'Не удалось подключить Discord сервер',
+        'round': 'Раунд',
+        'paused': 'Пауза',
         'empty': 'Пусто'
     };
     if (translations.hasOwnProperty(eng)) {

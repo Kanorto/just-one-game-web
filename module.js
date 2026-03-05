@@ -63,6 +63,8 @@ function init(wsServer, path) {
                     discordMute: false,
                     discordLinks: {},
                     discordUsernames: {},
+                    discordGuildId: null,
+                    discordGuildName: null,
                     masterKicked: false,
                     noHints: false,
                 },
@@ -517,6 +519,54 @@ function init(wsServer, path) {
                         update();
                     }
                 },
+                "set-discord-guild": (user, guildId) => {
+                    if (user !== room.hostId) return;
+                    if (!guildId || typeof guildId !== 'string') return;
+                    guildId = guildId.trim();
+                    if (!/^\d{17,20}$/.test(guildId)) {
+                        send(user, "discord-guild-set", {
+                            success: false,
+                            error: "invalid_guild_id"
+                        });
+                        return;
+                    }
+                    if (!registry.validateDiscordGuild) {
+                        send(user, "discord-guild-set", {
+                            success: false,
+                            error: "discord_bot_not_active"
+                        });
+                        return;
+                    }
+                    registry.validateDiscordGuild(guildId).then(result => {
+                        if (result.ok) {
+                            room.discordGuildId = guildId;
+                            room.discordGuildName = result.guildName;
+                            room.voiceEnabled = true;
+                            send(user, "discord-guild-set", {
+                                success: true,
+                                guildName: result.guildName
+                            });
+                            update();
+                        } else {
+                            send(user, "discord-guild-set", {
+                                success: false,
+                                error: result.error
+                            });
+                        }
+                    }).catch(() => {
+                        send(user, "discord-guild-set", {
+                            success: false,
+                            error: "discord_bot_error"
+                        });
+                    });
+                },
+                "unset-discord-guild": (user) => {
+                    if (user !== room.hostId) return;
+                    room.discordGuildId = null;
+                    room.discordGuildName = null;
+                    room.voiceEnabled = false;
+                    update();
+                },
                 "link-discord": (user, code) => {
                     if (!code || typeof code !== 'string') return;
                     code = code.trim().toUpperCase();
@@ -556,8 +606,8 @@ function init(wsServer, path) {
                     room.discordLinks[targetUserId] = discordId;
                     room.voiceEnabled = true;
                     update();
-                    if (registry.lookupDiscordUser) {
-                        registry.lookupDiscordUser(discordId).then(userData => {
+                    if (registry.lookupDiscordUser && room.discordGuildId) {
+                        registry.lookupDiscordUser(room.discordGuildId, discordId).then(userData => {
                             if (userData && userData.username) {
                                 room.discordUsernames[targetUserId] = userData.username;
                                 update();

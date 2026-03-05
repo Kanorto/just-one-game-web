@@ -27,8 +27,7 @@ npm run debug
 {
   "port": 3000,
   "discord": {
-    "token": "YOUR_DISCORD_BOT_TOKEN",
-    "guildId": "YOUR_DISCORD_GUILD_ID"
+    "token": "YOUR_DISCORD_BOT_TOKEN"
   }
 }
 ```
@@ -37,7 +36,6 @@ npm run debug
 |------|----------|
 | `port` | Порт сервера (по умолчанию 3000) |
 | `discord.token` | Токен Discord-бота (необязательно) |
-| `discord.guildId` | ID Discord-сервера для управления голосом |
 
 ### Через переменные окружения
 
@@ -47,7 +45,6 @@ npm run debug
 |-----------|----------|
 | `PORT` | Порт сервера |
 | `DISCORD_TOKEN` | Токен Discord-бота |
-| `DISCORD_GUILD_ID` | ID Discord-сервера |
 
 ## Discord-бот (опционально)
 
@@ -60,8 +57,7 @@ Discord-бот позволяет автоматически заглушать 
 1. Перейдите на [Discord Developer Portal](https://discord.com/developers/applications)
 2. Создайте новое приложение → Bot → скопируйте токен
 3. Включите **Privileged Gateway Intents**: `MESSAGE CONTENT`, `SERVER MEMBERS`, `PRESENCE`
-4. Пригласите бота на сервер с правами: `Send Messages`, `Deafen Members`, `View Channels`
-5. Скопируйте ID сервера (ПКМ на сервер → «Копировать ID», нужен режим разработчика)
+4. Пригласите бота на нужные серверы по ссылке: `https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&scope=bot&permissions=8391680`
 
 ### Команды бота
 
@@ -70,6 +66,14 @@ Discord-бот позволяет автоматически заглушать 
 | `!link` | Генерирует 6-символьный код привязки (действителен 5 минут) |
 | `!unlink` | Отвязывает Discord-аккаунт от игрового |
 | `!status` | Показывает текущие привязки |
+
+### Привязка Discord-сервера
+
+```
+1. В игре: хост нажимает кнопку 🖥 (DNS) в настройках
+2. Вводит ID своего Discord-сервера (ПКМ на сервер → «Копировать ID», нужен режим разработчика)
+3. Если бот не добавлен на сервер или нет прав — появится ссылка для добавления бота
+```
 
 ### Привязка игрока
 
@@ -92,7 +96,6 @@ Discord-бот позволяет автоматически заглушать 
 2. Подключите GitHub-репозиторий
 3. Добавьте переменные окружения:
    - `DISCORD_TOKEN` — токен бота
-   - `DISCORD_GUILD_ID` — ID сервера
 4. Railway автоматически установит зависимости и запустит `npm start`
 5. `PORT` устанавливается Railway автоматически
 

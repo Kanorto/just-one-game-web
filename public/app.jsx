@@ -29,8 +29,6 @@ class Game extends React.Component {
     componentDidMount() {
         this.gameName = "justOne";
         const initArgs = CommonRoom.roomInit(this);
-        if (!parseInt(localStorage.darkThemejustOne))
-            document.body.classList.add("dark-theme");
         if (!localStorage.justOneUserId) {
             while (!localStorage.userName)
                 localStorage.userName = prompt("Your name");
@@ -107,6 +105,26 @@ class Game extends React.Component {
                 popup.alert({content: t("discord link failed")});
             }
         });
+        this.socket.on("discord-guild-set", (result) => {
+            if (result.success) {
+                popup.alert({content: t("discord guild set success") + ": " + result.guildName});
+            } else {
+                const BOT_INVITE_URL = 'https://discord.com/oauth2/authorize?client_id=1373254586231423076&scope=bot&permissions=8391680';
+                let msg = '';
+                if (result.error === 'discord_guild_not_found') {
+                    msg = t("discord guild not found") + "\n\n" + t("add bot link") + ":\n" + BOT_INVITE_URL;
+                } else if (result.error === 'discord_insufficient_permissions') {
+                    msg = t("discord insufficient permissions") + "\n\n" + t("add bot link") + ":\n" + BOT_INVITE_URL;
+                } else if (result.error === 'discord_bot_not_active') {
+                    msg = t("discord bot not active");
+                } else if (result.error === 'invalid_guild_id') {
+                    msg = t("invalid discord guild id");
+                } else {
+                    msg = t("discord guild set failed");
+                }
+                popup.alert({content: msg});
+            }
+        });
         this.socket.on("ping", (id) => {
             this.socket.emit("pong", id);
         });
@@ -174,6 +192,12 @@ class Game extends React.Component {
                             isMaster,
                             teamsLocked: data.teamsLocked
                     })}>
+                        {data.paused && data.phase !== 0 && (
+                            <div className="pause-overlay">
+                                <i className="material-icons pause-overlay-icon">pause_circle</i>
+                                <div className="pause-overlay-text">{t("paused")}</div>
+                            </div>
+                        )}
                         <SpectatorList data={data} socket={socket} />
                         <PlayerList data={data} socket={socket}  />
                         <div className="main-row">
