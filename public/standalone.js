@@ -163,15 +163,15 @@ window.UserAudioMarker = class UserAudioMarker extends React.Component {
             var username = (data.discordUsernames && data.discordUsernames[user]) || 'Discord';
             return React.createElement('span', {
                 className: 'user-audio-marker-elem discord-indicator discord-linked',
-                style: { display: 'inline-block', width: 8, height: 8, borderRadius: '50%', marginRight: 2, cursor: isHost ? 'pointer' : 'default' },
                 title: username,
+                style: { cursor: isHost ? 'pointer' : 'default' },
                 onClick: isHost ? (e) => this.handleClick(e) : undefined
             });
         } else if (discordMute) {
             return React.createElement('span', {
                 className: 'user-audio-marker-elem discord-indicator discord-unlinked',
-                style: { display: 'inline-block', width: 8, height: 8, borderRadius: '50%', marginRight: 2, cursor: isHost ? 'pointer' : 'default' },
                 title: isHost ? t("click to link discord") : t("not linked to discord"),
+                style: { cursor: isHost ? 'pointer' : 'default' },
                 onClick: isHost ? (e) => this.handleClick(e) : undefined
             });
         }
