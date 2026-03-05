@@ -30,6 +30,17 @@ class HostControls extends React.Component {
         this.props.refreshState()
     }
 
+    toggleTheme() {
+        if (document.body.classList.contains('dark-theme')) {
+            document.body.classList.remove('dark-theme');
+            localStorage.darkThemejustOne = 1;
+        } else {
+            document.body.classList.add('dark-theme');
+            localStorage.darkThemejustOne = 0;
+        }
+        this.props.refreshState();
+    }
+
     clickTogglePause() {
         this.props.socket.emit("toggle-pause");
     }
@@ -250,6 +261,13 @@ class HostControls extends React.Component {
                               className="toggle-theme material-icons settings-button">volume_up</i>)
                         : (<i onClick={() => this.toggleMuteSounds()}
                               className="toggle-theme material-icons settings-button">volume_off</i>)}
+                    {document.body.classList.contains('dark-theme')
+                        ? (<i onClick={() => this.toggleTheme()}
+                              title={t("light theme")}
+                              className="material-icons settings-button theme-toggle-btn">light_mode</i>)
+                        : (<i onClick={() => this.toggleTheme()}
+                              title={t("dark theme")}
+                              className="material-icons settings-button theme-toggle-btn">dark_mode</i>)}
                 </div>
                 <i className="settings-hover-button material-icons">settings</i>
             </div>

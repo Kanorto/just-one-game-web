@@ -45,6 +45,9 @@ window.t = (eng) => {
         'discord bot not active': 'Discord бот не активен на сервере игры.',
         'invalid discord guild id': 'Неверный формат ID сервера (нужен числовой ID из 17-20 цифр)',
         'discord guild set failed': 'Не удалось подключить Discord сервер',
+        'round': 'Раунд',
+        'light theme': 'Светлая тема',
+        'dark theme': 'Тёмная тема',
         'empty': 'Пусто'
     };
     if (translations.hasOwnProperty(eng)) {

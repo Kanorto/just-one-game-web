@@ -26,9 +26,17 @@ class ProgressBar extends React.Component {
 
     progressBarUpdate(x, outOf) {
         const percent = (1 - x / outOf) * 100 + '%'
+        const ratio = 1 - x / outOf;
         const barNode = document.getElementById('timer-progress-bar');
-        if (barNode)
+        if (barNode) {
             barNode.style.width = percent;
+            barNode.classList.remove('timer-warning', 'timer-danger');
+            if (ratio <= 0.15) {
+                barNode.classList.add('timer-danger');
+            } else if (ratio <= 0.35) {
+                barNode.classList.add('timer-warning');
+            }
+        }
     }
 
     render() {
@@ -340,6 +348,7 @@ class StatusBar extends React.Component {
         return (
             <div className="status-bar-wrap">
                 <div className="status-bar">
+                    {phase !== 0 && <div className="round-counter">{t("round")} {data.rounds}</div>}
                     <div className="aligner">
                         {content}
                     </div>
