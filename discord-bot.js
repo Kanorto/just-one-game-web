@@ -20,22 +20,63 @@ class DiscordBot {
         this._startVoiceStateLoop();
     }
 
+    // Required bot permissions bitmask for voice management
+    static get REQUIRED_PERMISSIONS() {
+        return 8391680n;
+    }
+
+    static get BOT_INVITE_URL() {
+        return 'https://discord.com/oauth2/authorize?client_id=1373254586231423076&scope=bot&permissions=8391680';
+    }
+
+    /**
+     * Validate that the bot is in the given guild and has the required permissions.
+     * Returns { ok: true, guildName } or { ok: false, error: string }.
+     */
+    async validateGuild(guildId) {
+        if (!this.client.isReady()) {
+            return { ok: false, error: 'discord_bot_not_ready' };
+        }
+        const guild = this.client.guilds.cache.get(guildId);
+        if (!guild) {
+            return { ok: false, error: 'discord_guild_not_found' };
+        }
+        const me = guild.members.me;
+        if (!me) {
+            return { ok: false, error: 'discord_guild_not_found' };
+        }
+        const required = DiscordBot.REQUIRED_PERMISSIONS;
+        if (!me.permissions.has(required)) {
+            return { ok: false, error: 'discord_insufficient_permissions' };
+        }
+        return { ok: true, guildName: guild.name };
+    }
+
+    /**
+     * Lookup a Discord user in a specific guild.
+     */
+    async lookupDiscordUserInGuild(guildId, discordUserId) {
+        if (!this.client.isReady()) return null;
+        const guild = this.client.guilds.cache.get(guildId);
+        if (!guild) return null;
+        try {
+            const member = await guild.members.fetch(discordUserId);
+            if (member) {
+                return { id: member.user.id, username: member.user.username };
+            }
+        } catch (e) {
+            // User not found or fetch failed
+        }
+        return null;
+    }
+
     _setupEventHandlers() {
         this.client.once(Events.ClientReady, () => {
             console.log(`[Discord] Logged in as ${this.client.user.tag}`);
-            // Register lookup function for host-link-discord-id
-            const guild = this.client.guilds.cache.get(this.config.guildId);
-            if (guild && this.gameState.registry) {
-                this.gameState.registry.lookupDiscordUser = async (discordUserId) => {
-                    try {
-                        const member = await guild.members.fetch(discordUserId);
-                        if (member) {
-                            return { id: member.user.id, username: member.user.username };
-                        }
-                    } catch (e) {
-                        // User not found or fetch failed
-                    }
-                    return null;
+            // Register lookup function for host-link-discord-id (uses per-room guild)
+            if (this.gameState.registry) {
+                this.gameState.registry.lookupDiscordUser = async (guildId, discordUserId) => {
+                    return this.lookupDiscordUserInGuild(guildId, discordUserId);
                 };
             }
         });
@@ -165,12 +206,12 @@ class DiscordBot {
     async _updateVoiceStates() {
         if (!this.client.isReady()) return;
 
-        const guild = this.client.guilds.cache.get(this.config.guildId);
-        if (!guild) return;
-
         for (const [, roomState] of this.rooms) {
             const room = roomState.room;
-            if (!room || !room.discordLinks) continue;
+            if (!room || !room.discordLinks || !room.discordGuildId) continue;
+
+            const guild = this.client.guilds.cache.get(room.discordGuildId);
+            if (!guild) continue;
 
             const userDeaf = room.userDeaf || {};
             const discordLinks = room.discordLinks;

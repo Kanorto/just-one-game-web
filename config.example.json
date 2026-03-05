@@ -1,7 +1,6 @@
 {
   "port": 3000,
   "discord": {
-    "token": "YOUR_DISCORD_BOT_TOKEN",
-    "guildId": "YOUR_DISCORD_GUILD_ID"
+    "token": "YOUR_DISCORD_BOT_TOKEN"
   }
 }
