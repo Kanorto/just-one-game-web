@@ -1175,6 +1175,10 @@ input#command-input {
 
 /* === Theme toggle === */
 .theme-toggle-btn {
+    color: #e0a000;
+}
+
+.dark-theme .theme-toggle-btn {
     color: #f0c040;
 }
 
