@@ -46,8 +46,7 @@ window.t = (eng) => {
         'invalid discord guild id': 'Неверный формат ID сервера (нужен числовой ID из 17-20 цифр)',
         'discord guild set failed': 'Не удалось подключить Discord сервер',
         'round': 'Раунд',
-        'light theme': 'Светлая тема',
-        'dark theme': 'Тёмная тема',
+        'paused': 'Пауза',
         'empty': 'Пусто'
     };
     if (translations.hasOwnProperty(eng)) {

@@ -29,8 +29,6 @@ class Game extends React.Component {
     componentDidMount() {
         this.gameName = "justOne";
         const initArgs = CommonRoom.roomInit(this);
-        if (!parseInt(localStorage.darkThemejustOne))
-            document.body.classList.add("dark-theme");
         if (!localStorage.justOneUserId) {
             while (!localStorage.userName)
                 localStorage.userName = prompt("Your name");
@@ -194,6 +192,12 @@ class Game extends React.Component {
                             isMaster,
                             teamsLocked: data.teamsLocked
                     })}>
+                        {data.paused && data.phase !== 0 && (
+                            <div className="pause-overlay">
+                                <i className="material-icons pause-overlay-icon">pause_circle</i>
+                                <div className="pause-overlay-text">{t("paused")}</div>
+                            </div>
+                        )}
                         <SpectatorList data={data} socket={socket} />
                         <PlayerList data={data} socket={socket}  />
                         <div className="main-row">
