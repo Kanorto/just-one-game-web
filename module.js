@@ -564,6 +564,7 @@ function init(wsServer, path) {
                     if (user !== room.hostId) return;
                     room.discordGuildId = null;
                     room.discordGuildName = null;
+                    room.voiceEnabled = false;
                     update();
                 },
                 "link-discord": (user, code) => {
