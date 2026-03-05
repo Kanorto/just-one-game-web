@@ -223,6 +223,9 @@ const registry = {
 // Self-reference for registry.users pattern
 registry.users = registry;
 
+// Discord user lookup (set by discord-bot when active)
+registry.lookupDiscordUser = null;
+
 // --- wsServer interface ---
 const wsServer = {
     app: app,

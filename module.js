@@ -62,6 +62,7 @@ function init(wsServer, path) {
                     managedVoice: true,
                     discordMute: false,
                     discordLinks: {},
+                    discordUsernames: {},
                     masterKicked: false,
                     noHints: false,
                 },
@@ -522,6 +523,8 @@ function init(wsServer, path) {
                     const linkData = registry.linkCodes && registry.linkCodes.get(code);
                     if (linkData) {
                         room.discordLinks[user] = linkData.discordUserId;
+                        if (linkData.discordUsername)
+                            room.discordUsernames[user] = linkData.discordUsername;
                         registry.linkCodes.delete(code);
                         send(user, "discord-linked", {
                             success: true,
@@ -538,6 +541,35 @@ function init(wsServer, path) {
                 },
                 "unlink-discord": (user) => {
                     delete room.discordLinks[user];
+                    delete room.discordUsernames[user];
+                    update();
+                },
+                "host-link-discord-id": (user, targetUserId, discordId) => {
+                    if (user !== room.hostId) return;
+                    if (!targetUserId || !room.playerNames[targetUserId]) return;
+                    if (!discordId || typeof discordId !== 'string') return;
+                    discordId = discordId.trim();
+                    if (!/^\d{17,20}$/.test(discordId)) {
+                        send(user, "message", "Неверный формат Discord ID");
+                        return;
+                    }
+                    room.discordLinks[targetUserId] = discordId;
+                    room.voiceEnabled = true;
+                    update();
+                    if (registry.lookupDiscordUser) {
+                        registry.lookupDiscordUser(discordId).then(userData => {
+                            if (userData && userData.username) {
+                                room.discordUsernames[targetUserId] = userData.username;
+                                update();
+                            }
+                        }).catch(() => {});
+                    }
+                },
+                "host-unlink-discord-id": (user, targetUserId) => {
+                    if (user !== room.hostId) return;
+                    if (!targetUserId) return;
+                    delete room.discordLinks[targetUserId];
+                    delete room.discordUsernames[targetUserId];
                     update();
                 },
                 "set-param": (user, type, value) => {

@@ -922,7 +922,22 @@ input#command-input {
 .user-audio-marker-elem {
     margin-right: 0;
     margin-left: 4px;
-    background: darkcyan;
+}
+
+.discord-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 2px;
+}
+
+.discord-indicator.discord-linked {
+    background: #43b581;
+}
+
+.discord-indicator.discord-unlinked {
+    background: #72767d;
 }
 
 .ban-hint-button .avatar {

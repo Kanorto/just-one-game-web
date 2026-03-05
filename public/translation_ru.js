@@ -28,6 +28,11 @@ window.t = (eng) => {
         'unlink discord confirm': 'Отвязать Discord аккаунт?',
         'discord linked': 'Discord привязан',
         'discord link failed': 'Неверный или просроченный код',
+        'enter discord id for player': 'Введите Discord ID игрока (числовой ID)',
+        'unlink player discord confirm': 'Отвязать Discord этого игрока?',
+        'click to link discord': 'Нажмите, чтобы привязать Discord',
+        'not linked to discord': 'Не привязан к Discord',
+        'invalid discord id': 'Неверный формат Discord ID (нужен числовой ID из 17-20 цифр)',
         'empty': 'Пусто'
     };
     if (translations.hasOwnProperty(eng)) {
