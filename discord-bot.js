@@ -23,6 +23,21 @@ class DiscordBot {
     _setupEventHandlers() {
         this.client.once(Events.ClientReady, () => {
             console.log(`[Discord] Logged in as ${this.client.user.tag}`);
+            // Register lookup function for host-link-discord-id
+            const guild = this.client.guilds.cache.get(this.config.guildId);
+            if (guild && this.gameState.registry) {
+                this.gameState.registry.lookupDiscordUser = async (discordUserId) => {
+                    try {
+                        const member = await guild.members.fetch(discordUserId);
+                        if (member) {
+                            return { id: member.user.id, username: member.user.username };
+                        }
+                    } catch (e) {
+                        // User not found or fetch failed
+                    }
+                    return null;
+                };
+            }
         });
 
         this.client.on(Events.MessageCreate, async (message) => {

@@ -78,7 +78,7 @@ class Player extends React.Component {
                         </i>) : ""}
                     </div>
                     <div className="player-name-section">
-                        <UserAudioMarker user={id} data={data}/>
+                        <UserAudioMarker user={id} data={data} socket={socket}/>
                         <span className="player-name">
                             <PlayerName data={data} id={id} />
                         </span>
@@ -146,7 +146,7 @@ class Spectator extends React.Component {
             id = this.props.id;
         return (
             <span className={cs("spectator", {self: id === data.userId})}>
-                &nbsp;{data.voiceEnabled ? <UserAudioMarker user={id} data={data}/> : "●"}&nbsp;
+                &nbsp;{(data.voiceEnabled || data.discordMute) ? <UserAudioMarker user={id} data={data} socket={socket}/> : "●"}&nbsp;
                 <span className="spectator-name"><PlayerName data={data} id={id} /></span>
                 &nbsp;
                 <PlayerHostControls id={id} data={data} socket={socket}/>

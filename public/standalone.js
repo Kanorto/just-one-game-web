@@ -125,16 +125,54 @@ window.WordPackSelector = class WordPackSelector extends React.Component {
 };
 
 // --- UserAudioMarker component ---
+// Universal Discord link indicator: green = linked (shows username on hover),
+// grey = not linked (host can click to link by Discord ID).
+// Reusable across game modules (Just One, CodeNames, etc.)
 window.UserAudioMarker = class UserAudioMarker extends React.Component {
+    handleClick(e) {
+        e.stopPropagation();
+        var user = this.props.user;
+        var data = this.props.data || {};
+        var socket = this.props.socket;
+        var isHost = data.userId === data.hostId;
+        var linked = data.discordLinks && data.discordLinks[user];
+        if (!isHost || !socket) return;
+        if (!linked) {
+            popup.prompt({content: t("enter discord id for player")}, function (evt) {
+                if (evt.proceed && evt.input_value.trim()) {
+                    socket.emit("host-link-discord-id", user, evt.input_value.trim());
+                }
+            });
+        } else {
+            popup.confirm({content: t("unlink player discord confirm")}, function (evt) {
+                if (evt.proceed) {
+                    socket.emit("host-unlink-discord-id", user);
+                }
+            });
+        }
+    }
+
     render() {
         var user = this.props.user;
         var data = this.props.data || {};
         var linked = data.discordLinks && data.discordLinks[user];
+        var discordMute = data.discordMute;
+        var isHost = data.userId === data.hostId;
+
         if (linked) {
+            var username = (data.discordUsernames && data.discordUsernames[user]) || 'Discord';
             return React.createElement('span', {
-                className: 'user-audio-marker-elem',
-                style: { display: 'inline-block', width: 6, height: 6, borderRadius: '50%', marginRight: 2 },
-                title: 'Discord linked'
+                className: 'user-audio-marker-elem discord-indicator discord-linked',
+                style: { display: 'inline-block', width: 8, height: 8, borderRadius: '50%', marginRight: 2, cursor: isHost ? 'pointer' : 'default' },
+                title: username,
+                onClick: isHost ? (e) => this.handleClick(e) : undefined
+            });
+        } else if (discordMute) {
+            return React.createElement('span', {
+                className: 'user-audio-marker-elem discord-indicator discord-unlinked',
+                style: { display: 'inline-block', width: 8, height: 8, borderRadius: '50%', marginRight: 2, cursor: isHost ? 'pointer' : 'default' },
+                title: isHost ? t("click to link discord") : t("not linked to discord"),
+                onClick: isHost ? (e) => this.handleClick(e) : undefined
             });
         }
         return null;
